@@ -1,0 +1,28 @@
+# Node modules
+**/node_modules/
+
+# Environment
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.*
+backend/.env
+frontend/.env
+
+# Logs
+npm-debug.log*
+*.log
+
+# Build outputs
+frontend/build/
+dist/
+
+# OS & editors
+.DS_Store
+.vscode/
+.idea/
+
+# Lock files (keep if you want, ignore if not)
+# package-lock.json
