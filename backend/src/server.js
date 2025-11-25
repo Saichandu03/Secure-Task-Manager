@@ -4,6 +4,13 @@ const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
+require('xss-clean');
+
+const { connectDB } = require('./config/db');
+const redis = require('./config/redisClient');
+const errorHandler = require('./middleware/errorHandler');
+
+require('dotenv').config();
 
 const app = express();
 
@@ -13,13 +20,24 @@ app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(cors({ origin: true, credentials: true }));
 
-// routes (will exist if created)
-try { app.use('/api/v1/auth', require('./routes/auth')); } catch (e) { /* ignore */ }
-try { app.use('/api/v1/tasks', require('./routes/tasks')); } catch (e) { /* ignore */ }
+// attach routes
+app.use('/api/v1/auth', require('./routes/auth'));
+app.use('/api/v1/tasks', require('./routes/tasks'));
 
 app.get('/', (req, res) => res.json({ status: 'ok' }));
 
+// error handler
+app.use(errorHandler);
+
+// start server after DB and cache initialization (best-effort)
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+async function start() {
+	await connectDB(process.env.MONGO_URI);
+	// initialize in-process cache (LRU). This replaces Redis for local/demo runs.
+	try { await redis.init(); } catch (e) { console.warn('Cache init warning', e && e.message ? e.message : e); }
+	app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
+
+start();
 
 module.exports = app;

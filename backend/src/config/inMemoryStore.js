@@ -13,6 +13,7 @@ module.exports = {
   async findUserById(id) { return users.find(u => u.id === id) },
 
   async createTask(t) { const task = { id: uuidv4(), ...t }; tasks.push(task); return task },
+  async createTask(t) { const now = new Date().toISOString(); const task = { id: uuidv4(), ...t, createdAt: now, updatedAt: now }; tasks.push(task); return task },
   async findTasksByUserId(userId) { return tasks.filter(t => t.owner === userId) },
   async findTaskById(id) { return tasks.find(t => t.id === id) },
   async updateTask(id, changes) { const t = tasks.find(x=>x.id===id); if (!t) return null; Object.assign(t, changes); return t },
