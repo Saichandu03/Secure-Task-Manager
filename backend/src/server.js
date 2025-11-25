@@ -13,12 +13,17 @@ const errorHandler = require('./middleware/errorHandler');
 require('dotenv').config();
 
 const app = express();
+app.set('trust proxy', 1);
 
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
-app.use(cors({ origin: true, credentials: true }));
+
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || null;
+const corsOptions = { credentials: true };
+if (FRONTEND_ORIGIN) corsOptions.origin = FRONTEND_ORIGIN; else corsOptions.origin = true;
+app.use(cors(corsOptions));
 
 // attach routes
 app.use('/api/v1/auth', require('./routes/auth'));

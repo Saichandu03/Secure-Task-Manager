@@ -14,7 +14,7 @@ function signToken(user) {
 }
 
 function cookieOptions() {
-  const opts = { httpOnly: true, sameSite: "lax" };
+  const opts = { httpOnly: true, sameSite: process.env.NODE_ENV === "production" ? "none" : "lax" };
   if (process.env.NODE_ENV === "production") opts.secure = true;
   return opts;
 }
@@ -113,7 +113,8 @@ exports.login = async (req, res, next) => {
 };
 
 exports.logout = (req, res) => {
-  res.clearCookie("token");
+  // Clear using same options so cookie is removed correctly in cross-site scenarios
+  res.clearCookie("token", cookieOptions());
   res.json({ ok: true });
 };
 
