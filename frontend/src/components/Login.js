@@ -6,11 +6,13 @@ import { useAuth } from '../AuthContext';
 export default function Login(){
   const [form, setForm] = useState({ email:'', password:'' });
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { setUser } = useAuth();
 
   const submit = async (e)=>{
     e.preventDefault(); setError(null);
+    setLoading(true);
     try{
       const res = await api.post('/auth/login', form);
       // update global auth state so navbar updates immediately
@@ -18,6 +20,8 @@ export default function Login(){
       navigate('/dashboard');
     }catch(err){
       setError(err.response?.data?.error || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -39,7 +43,10 @@ export default function Login(){
             </div>
             <div className="d-flex justify-content-between align-items-center">
               <small className="text-muted">Need an account? <a href="/register">Register</a></small>
-              <button className="btn btn-primary" type="submit">Login</button>
+              <button className="btn btn-primary" type="submit" disabled={loading}>
+                {loading && <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>}
+                {loading ? 'Logging in...' : 'Login'}
+              </button>
             </div>
           </form>
         </div>

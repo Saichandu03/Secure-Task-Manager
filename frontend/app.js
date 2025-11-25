@@ -63,12 +63,23 @@ document.getElementById("btnRegister").addEventListener("click", async () => {
 });
 
 document.getElementById("btnLogin").addEventListener("click", async () => {
+  const btn = document.getElementById("btnLogin");
+  const prevHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Logging in...`;
+
   const email = document.getElementById("l_email").value.trim();
   const password = document.getElementById("l_password").value;
-  if (!email || !/^\S+@\S+\.\S+$/.test(email))
+  if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+    btn.disabled = false;
+    btn.innerHTML = prevHtml;
     return show("Valid email required");
-  if (!password || password.length < 8)
+  }
+  if (!password || password.length < 8) {
+    btn.disabled = false;
+    btn.innerHTML = prevHtml;
     return show("Password must be at least 8 characters");
+  }
   try {
     const res = await axios.post("/auth/login", { email, password });
     show({ status: res.status, body: res.data });
@@ -77,6 +88,9 @@ document.getElementById("btnLogin").addEventListener("click", async () => {
     renderUserState();
   } catch (e) {
     show("Error: " + (e.response?.data || e.message));
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = prevHtml;
   }
 });
 
